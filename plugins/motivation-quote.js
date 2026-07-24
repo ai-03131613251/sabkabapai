@@ -1,0 +1,45 @@
+// motivate.js - ESM Version
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import axios from 'axios';
+import { cmd } from '../command.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+cmd({
+    pattern: "motivate",
+    alias: ["motivation", "inspire"],
+    desc: "Get a random motivational quote",
+    react: "💪",
+    category: "fun",
+    use: '.motivate',
+    filename: __filename
+},
+async (conn, mek, m, { from, reply }) => {
+    try {
+        const apiUrl = 'https://apis.davidcyriltech.my.id/random/quotes';
+        
+        const { data } = await axios.get(apiUrl);
+        
+        if (!data.success || !data.response) {
+            return reply("❌ Couldn't fetch a quote at the moment. Try again later!");
+        }
+        
+        const quoteMessage = `
+✨ *Motivational Quote* ✨
+
+"${data.response.quote}"
+
+_— ${data.response.author}_
+
+_📌 ᴘᴏᴡᴇʀ ʙʏ ᴍᴀғɪᴀ ᴀᴅᴇᴇʟ_
+`.trim();
+
+        await reply(quoteMessage);
+        
+    } catch (error) {
+        console.error('Motivation Error:', error);
+        reply("❌ Failed to fetch a motivational quote. Please try again later.");
+    }
+});
