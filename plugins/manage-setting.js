@@ -110,7 +110,7 @@ async (conn, mek, m, { from, reply, isCreator, args, updateUserConfig, userConfi
         // Send success message with the image
         await conn.sendMessage(from, {
             image: { url: imageUrl },
-            caption: `✅ *Bot Display Picture Updated Successfully!*\n\n📁 *Image URL:* ${imageUrl}\n\n> © Updated by ERFAN-MD 💜`
+            caption: `✅ *Bot Display Picture Updated Successfully!*\n\n📁 *Image URL:* ${imageUrl}\n\n> ᴘᴏᴡᴇʀ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ`
         }, { quoted: mek });
 
     } catch (error) {
