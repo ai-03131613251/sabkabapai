@@ -57,25 +57,45 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
             react: { text: textEmoji, key: mek.key }
         });
 
-        const end = new Date().getTime();
-        const responseTime = (end - start) / 1000;
+        const loading = [
+"▰□□□□□□□□□ 10%",
+"▰▰□□□□□□□□ 20%",
+"▰▰▰□□□□□□□ 30%",
+"▰▰▰▰□□□□□□ 40%",
+"▰▰▰▰▰□□□□□ 50%",
+"▰▰▰▰▰▰□□□□ 60%",
+"▰▰▰▰▰▰▰□□□ 70%",
+"▰▰▰▰▰▰▰▰□□ 80%",
+"▰▰▰▰▰▰▰▰▰□ 90%",
+"▰▰▰▰▰▰▰▰▰▰ 100%"
+];
 
-        // Get current fancy bot name and rotate for next time
-        const fancyBotName = botNameStyles[currentStyleIndex];
-        currentStyleIndex = (currentStyleIndex + 1) % botNameStyles.length;
+for (const step of loading) {
+    await conn.sendMessage(from, { text: step });
+    await new Promise(r => setTimeout(r, 300));
+}
 
-        const text = `> *${fancyBotName} SPEED: ${responseTime.toFixed(2)}ms ${reactionEmoji}*`;
+const end = new Date().getTime();
+const responseTime = end - start;
 
-        await conn.sendMessage(from, {
-            text,
-            contextInfo: {
-                mentionedJid: [sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363404811118873@newsletter',
-                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
-                    serverMessageId: 143
+const fancyBotName = botNameStyles[currentStyleIndex];
+currentStyleIndex = (currentStyleIndex + 1) % botNameStyles.length;
+
+await conn.sendMessage(from, {
+    text: `╭━━━〔 👑 ${fancyBotName} 👑 〕━━━╮
+┃ ⚡ SPEED : ${responseTime} ms
+┃ 🤖 STATUS : ONLINE
+┃ 🚀 ENGINE : GHOST CORE
+┃ 💎 MODE : VIP
+╰━━━━━━━━━━━━━━━━━━╯`,
+    contextInfo: {
+        mentionedJid: [sender],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363404811118873@newsletter',
+            newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
+            serverMessageId: 143
                 }
             }
         }, { quoted: mek });
