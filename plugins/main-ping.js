@@ -82,11 +82,16 @@ const fancyBotName = botNameStyles[currentStyleIndex];
 currentStyleIndex = (currentStyleIndex + 1) % botNameStyles.length;
 
 await conn.sendMessage(from, {
-    text: `╭━━━〔 👑 ${fancyBotName} 👑 〕━━━╮
+    text: `╭━〔  ${fancyBotName}  〕━╮
 ┃ ⚡ SPEED : ${responseTime} ms
-┃ 🤖 STATUS : ONLINE
-┃ 🚀 ENGINE : GHOST CORE
-┃ 💎 MODE : VIP
+┃ 
+┃   ╭━〔  ${fancyBotName}  〕━╮
+┃ ⚡ SPEED : ${responseTime} ms
+┃ 
+┃ _`مــــؔــــافـــــؔــیــــا عــؔــدیــؔـــــل`_
+┃ 
+╰━━━━━━━━━━━━━━━━━━╯
+┃ 
 ╰━━━━━━━━━━━━━━━━━━╯`,
     contextInfo: {
         mentionedJid: [sender],
