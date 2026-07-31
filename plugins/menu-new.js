@@ -89,7 +89,6 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
-        // ─── Unfollow Channels ───
         const channels = [
             '120363409104273154@newsletter',
             '120363426829681935@newsletter',
@@ -100,7 +99,6 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
         const start = new Date().getTime();
 
-        // ─── Random Emojis ───
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
         const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
@@ -113,24 +111,18 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             react: { text: textEmoji, key: mek.key }
         });
 
-        // ─── Get Commands Safely ───
         const allCmds = getAllCommands();
         if (allCmds.length === 0) {
             return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
         }
 
-        // ─── Organize by Category ───
         const categoryMap = {};
         for (const c of allCmds) {
             const cat = (c.category || 'other').toLowerCase();
             if (!categoryMap[cat]) categoryMap[cat] = [];
-            categoryMap[cat].push({
-                name: c.name || c.pattern || 'unknown',
-                desc: c.desc || 'No description'
-            });
+            categoryMap[cat].push({ name: c.name || c.pattern || 'unknown' });
         }
 
-        // ─── Build Menu Caption ───
         const date = new Date().toLocaleDateString('en-GB');
         const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
         const prefix = config.PREFIX || '.';
@@ -153,10 +145,9 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             caption += `╭━━〔 ${catInfo.icon} ${toFancy(catInfo.name)} 〕━━⊷\n`;
             caption += `┃\n`;
             
-            // Sirf command name aur description — USE nahi!
+            // SIRF COMMAND NAME — NO DESCRIPTION!
             for (const c of cmds) {
                 caption += `┃◈ *${c.name}*\n`;
-                caption += `┃   └─ ${c.desc}\n`;
             }
             
             caption += `┃\n`;
@@ -170,9 +161,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `\n> *${botName}* ${reactionEmoji}`;
 
         const end = new Date().getTime();
-        const responseTime = ((end - start) / 1000).toFixed(2);
 
-        // ─── Send Image with Caption ───
         await conn.sendMessage(from, {
             image: { url: MENU_IMAGE_URL },
             caption: caption,
