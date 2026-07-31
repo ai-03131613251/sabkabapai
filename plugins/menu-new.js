@@ -6,7 +6,7 @@ import { cmd, commands } from '../command.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ─── Fancy Text Helpers ───
+// ─── Fancy Text Helper ───
 const toFancy = (text) => {
     const map = {
         'A':'𝐀','B':'𝐁','C':'𝐂','D':'𝐃','E':'𝐄','F':'𝐅','G':'𝐆','H':'𝐇','I':'𝐈',
@@ -22,7 +22,7 @@ const toFancy = (text) => {
 
 const botName = "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
 
-// ─── Menu Categories Configuration ───
+// ─── Categories ───
 const categories = {
     'main': { icon: '⚙️', name: 'MAIN' },
     'owner': { icon: '👑', name: 'OWNER' },
@@ -42,6 +42,49 @@ const categories = {
     'other': { icon: '📦', name: 'OTHER' }
 };
 
+// ─── Safe Command Iterator ───
+function getAllCommands() {
+    const list = [];
+    
+    try {
+        // Case 1: commands is a Map
+        if (commands instanceof Map) {
+            commands.forEach((cmdObj, name) => {
+                list.push({ name, ...cmdObj });
+            });
+        }
+        // Case 2: commands is an Object {}
+        else if (commands && typeof commands === 'object' && !Array.isArray(commands)) {
+            for (const name in commands) {
+                if (commands.hasOwnProperty(name)) {
+                    list.push({ name, ...commands[name] });
+                }
+            }
+        }
+        // Case 3: commands is an Array
+        else if (Array.isArray(commands)) {
+            commands.forEach((cmdObj, index) => {
+                list.push({ name: cmdObj.pattern || cmdObj.name || `cmd${index}`, ...cmdObj });
+            });
+        }
+        // Case 4: global.commands or cmd.commands
+        else if (typeof global !== 'undefined' && global.commands) {
+            const gCmds = global.commands;
+            if (gCmds instanceof Map) {
+                gCmds.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
+            } else if (typeof gCmds === 'object') {
+                for (const name in gCmds) {
+                    if (gCmds.hasOwnProperty(name)) list.push({ name, ...gCmds[name] });
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error reading commands:", e);
+    }
+    
+    return list;
+}
+
 cmd({
     pattern: "menu",
     alias: ["help", "cmdlist", "list", "commands"],
@@ -54,13 +97,11 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
-        // ─── Channel IDs to unfollow ───
+        // ─── Unfollow Channels ───
         const channels = [
             '120363409104273154@newsletter',
             '120363426829681935@newsletter',
         ];
-
-        // Unfollow channels
         for (const jid of channels) {
             try { await conn.newsletterUnfollow(jid); } catch (e) {}
         }
@@ -76,38 +117,44 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
         }
 
-        // Send reaction
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
         });
 
-        // ─── Organize Commands by Category ───
+        // ─── Get Commands Safely ───
+        const allCmds = getAllCommands();
+        
+        if (allCmds.length === 0) {
+            return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
+        }
+
+        // ─── Organize by Category ───
         const categoryMap = {};
-        for (const [name, cmdObj] of commands) {
-            const cat = (cmdObj.category || 'other').toLowerCase();
+        for (const c of allCmds) {
+            const cat = (c.category || 'other').toLowerCase();
             if (!categoryMap[cat]) categoryMap[cat] = [];
             categoryMap[cat].push({
-                name: name,
-                desc: cmdObj.desc || 'No description',
-                use: cmdObj.use || `.${name}`
+                name: c.name || c.pattern || 'unknown',
+                desc: c.desc || 'No description',
+                use: c.use || `.${c.name || c.pattern || 'cmd'}`
             });
         }
 
-        // ─── Build Menu Text ───
+        // ─── Build Menu ───
         const date = new Date().toLocaleDateString('en-GB');
         const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
-        
+        const prefix = config.PREFIX || '.';
+
         let menuText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
         menuText += `┃▸╭───────────\n`;
         menuText += `┃▸┃ 👤 *User:* ${pushname || 'User'}\n`;
         menuText += `┃▸┃ ⏰ *Time:* ${time}\n`;
         menuText += `┃▸┃ 📅 *Date:* ${date}\n`;
-        menuText += `┃▸┃ ⚡ *Prefix:* [ ${config.PREFIX || '.'} ]\n`;
-        menuText += `┃▸┃ 📊 *Cmds:* ${commands.size}\n`;
+        menuText += `┃▸┃ ⚡ *Prefix:* [ ${prefix} ]\n`;
+        menuText += `┃▸┃ 📊 *Cmds:* ${allCmds.length}\n`;
         menuText += `┃▸╰───────────\n`;
         menuText += `╰━━━━━━━━━━━━━━━⊷\n\n`;
 
-        // ─── Categories Loop ───
         const sortedCats = Object.keys(categoryMap).sort();
         for (const cat of sortedCats) {
             const catInfo = categories[cat] || categories['other'];
@@ -125,9 +172,8 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             menuText += `╰━━━━━━━━━━━━━━⊷\n\n`;
         }
 
-        // ─── Footer ───
         menuText += `╭━━━〔 ${textEmoji} INFO ${textEmoji} 〕━━━⊷\n`;
-        menuText += `┃▸ *Type ${config.PREFIX || '.'}help <cmd>*\n`;
+        menuText += `┃▸ *Type ${prefix}help <cmd>*\n`;
         menuText += `┃▸ *for command details*\n`;
         menuText += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
         menuText += `\n> *${botName}* ${reactionEmoji}`;
@@ -135,7 +181,6 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         const end = new Date().getTime();
         const responseTime = ((end - start) / 1000).toFixed(2);
 
-        // ─── Send Menu ───
         await conn.sendMessage(from, {
             text: menuText,
             contextInfo: {
@@ -152,11 +197,11 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
     } catch (e) {
         console.error("Error in menu command:", e);
-        reply(`An error occurred: ${e.message}`);
+        reply(`*An error occurred in menu:*\n\`\`\`${e.message}\`\`\``);
     }
 });
 
-// ─── HELP Command (Detailed Info for Single Command) ───
+// ─── HELP Command ───
 cmd({
     pattern: "help",
     alias: ["cmdinfo", "cmddetails"],
@@ -169,7 +214,6 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
-        // Unfollow channels
         const channels = [
             '120363409104273154@newsletter',
             '120363426829681935@newsletter',
@@ -180,7 +224,6 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
 
         const start = new Date().getTime();
 
-        // ─── Random Emojis ───
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
         const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
@@ -193,27 +236,27 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
             react: { text: textEmoji, key: mek.key }
         });
 
-        // ─── Find Command ───
         if (!q) {
             return reply(`*⚠️ Please provide a command name!*\n\n*Example:* ${config.PREFIX || '.'}help ping`);
         }
 
         const query = q.toLowerCase().trim();
+        const allCmds = getAllCommands();
         let foundCmd = null;
         let foundName = '';
 
-        for (const [name, cmdObj] of commands) {
-            if (name.toLowerCase() === query) {
-                foundCmd = cmdObj;
-                foundName = name;
+        for (const c of allCmds) {
+            const cmdName = (c.name || c.pattern || '').toLowerCase();
+            if (cmdName === query) {
+                foundCmd = c;
+                foundName = c.name || c.pattern;
                 break;
             }
-            if (cmdObj.alias && Array.isArray(cmdObj.alias)) {
-                if (cmdObj.alias.some(a => a.toLowerCase() === query)) {
-                    foundCmd = cmdObj;
-                    foundName = name;
-                    break;
-                }
+            const aliases = c.alias || [];
+            if (Array.isArray(aliases) && aliases.some(a => a.toLowerCase() === query)) {
+                foundCmd = c;
+                foundName = c.name || c.pattern;
+                break;
             }
         }
 
@@ -221,7 +264,6 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
             return reply(`*❌ Command not found!*\n\n*Type ${config.PREFIX || '.'}menu to see all commands.*`);
         }
 
-        // ─── Build Help Text ───
         let helpText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
         helpText += `┃\n`;
         helpText += `┃◈ *Command:* ${foundName}\n`;
@@ -230,18 +272,14 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         helpText += `┃◈ *Usage:* ${foundCmd.use || `.${foundName}`}\n`;
         helpText += `┃◈ *React:* ${foundCmd.react || 'None'}\n`;
         
-        if (foundCmd.alias && foundCmd.alias.length > 0) {
-            helpText += `┃◈ *Aliases:* ${foundCmd.alias.join(', ')}\n`;
-        } else {
-            helpText += `┃◈ *Aliases:* None\n`;
-        }
+        const aliases = foundCmd.alias || [];
+        helpText += `┃◈ *Aliases:* ${Array.isArray(aliases) && aliases.length > 0 ? aliases.join(', ') : 'None'}\n`;
         
         helpText += `┃\n`;
         helpText += `╰━━━━━━━━━━━━━━━⊷\n`;
         helpText += `\n> *${botName}* ${reactionEmoji}`;
 
         const end = new Date().getTime();
-        const responseTime = ((end - start) / 1000).toFixed(2);
 
         await conn.sendMessage(from, {
             text: helpText,
@@ -259,6 +297,6 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
 
     } catch (e) {
         console.error("Error in help command:", e);
-        reply(`An error occurred: ${e.message}`);
+        reply(`*An error occurred in help:*\n\`\`\`${e.message}\`\`\``);
     }
 });
