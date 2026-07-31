@@ -3,187 +3,262 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import config from '../config.js';
 import { cmd, commands } from '../command.js';
-import os from 'os';
-import fs from 'fs';
-import { runtime } from '../lib/functions.js';
-import axios from 'axios';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║           𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩 VIP MENU SYSTEM                    ║
-// ║           Converted to ES Modules - Working Pattern          ║
-// ╚══════════════════════════════════════════════════════════════╝
-
-// Helper function for small caps text
-const toSmallCaps = (text) => {
-    if (!text || typeof text !== 'string') return '';
-    const smallCapsMap = {
-        'a': 'ᴀ', 'b': 'ʙ', 'c': 'ᴄ', 'd': 'ᴅ', 'e': 'ᴇ', 'f': 'ғ', 'g': 'ɢ', 'h': 'ʜ', 'i': 'ɪ',
-        'j': 'ᴊ', 'k': 'ᴋ', 'l': 'ʟ', 'm': 'ᴍ', 'n': 'ɴ', 'o': 'ᴏ', 'p': 'ᴘ', 'q': 'ǫ', 'r': 'ʀ',
-        's': 's', 't': 'ᴛ', 'u': 'ᴜ', 'v': 'ᴠ', 'w': 'ᴡ', 'x': 'x', 'y': 'ʏ', 'z': 'ᴢ',
-        'A': 'ᴀ', 'B': 'ʙ', 'C': 'ᴄ', 'D': 'ᴅ', 'E': 'ᴇ', 'F': 'ғ', 'G': 'ɢ', 'H': 'ʜ', 'I': 'ɪ',
-        'J': 'ᴊ', 'K': 'ᴋ', 'L': 'ʟ', 'M': 'ᴍ', 'N': 'ɴ', 'O': 'ᴏ', 'P': 'ᴘ', 'Q': 'ǫ', 'R': 'ʀ',
-        'S': 's', 'T': 'ᴛ', 'U': 'ᴜ', 'V': 'ᴠ', 'W': 'ᴡ', 'X': 'x', 'Y': 'ʏ', 'Z': 'ᴢ'
+// ─── Fancy Text Helpers ───
+const toFancy = (text) => {
+    const map = {
+        'A':'𝐀','B':'𝐁','C':'𝐂','D':'𝐃','E':'𝐄','F':'𝐅','G':'𝐆','H':'𝐇','I':'𝐈',
+        'J':'𝐉','K':'𝐊','L':'𝐋','M':'𝐌','N':'𝐍','O':'𝐎','P':'𝐏','Q':'𝐐','R':'𝐑',
+        'S':'𝐒','T':'𝐓','U':'𝐔','V':'𝐕','W':'𝐖','X':'𝐗','Y':'𝐘','Z':'𝐙',
+        'a':'ᴀ','b':'ʙ','c':'ᴄ','d':'ᴅ','e':'ᴇ','f':'ғ','g':'ɢ','h':'ʜ','i':'ɪ',
+        'j':'ᴊ','k':'ᴋ','l':'ʟ','m':'ᴍ','n':'ɴ','o':'ᴏ','p':'ᴘ','q':'ǫ','r':'ʀ',
+        's':'s','t':'ᴛ','u':'ᴜ','v':'ᴠ','w':'ᴡ','x':'x','y':'ʏ','z':'ᴢ',
+        '0':'𝟎','1':'𝟏','2':'𝟐','3':'𝟑','4':'𝟒','5':'𝟓','6':'𝟔','7':'𝟕','8':'𝟖','9':'𝟗'
     };
-    return text.split('').map(char => smallCapsMap[char] || char).join('');
+    return text.split('').map(c => map[c] || c).join('');
 };
 
-// Format category with VIP design
-const formatCategory = (category, cmds) => {
-    const validCmds = cmds.filter(cmd => cmd.pattern && cmd.pattern.trim() !== '');
-    if (validCmds.length === 0) return '';
+const botName = "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
 
-    let title = `\n╭━━━〔 ${toSmallCaps(category.toUpperCase())} 〕━━━╮\n┃\n`;
-    let body = validCmds.map(cmd => {
-        const commandName = cmd.pattern || '';
-        return `┃ ─ ${toSmallCaps(commandName)}`;
-    }).join('\n');
-    let footer = `\n┃\n╰━━━━━━━━━━━━━━━━━━━⬣`;
-    return `${title}${body}${footer}`;
-};
-
-// Validate image
-const validateAndFetchImage = async (url) => {
-    if (!url || typeof url !== 'string' || url.trim() === '') {
-        return { valid: false };
-    }
-    try {
-        const urlPattern = /^https?:\/\/.+/i;
-        if (!urlPattern.test(url.trim())) {
-            return { valid: false };
-        }
-        const response = await axios.get(url, {
-            timeout: 10000,
-            maxRedirects: 5,
-            responseType: 'arraybuffer',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'image/*,*/*'
-            },
-            validateStatus: (status) => status < 400
-        });
-        const contentType = response.headers['content-type'];
-        if (contentType && contentType.startsWith('image/')) {
-            return { 
-                valid: true, 
-                buffer: Buffer.from(response.data),
-                contentType: contentType 
-            };
-        }
-        return { valid: false };
-    } catch (error) {
-        console.log('Image validation failed:', error.message);
-        return { valid: false };
-    }
+// ─── Menu Categories Configuration ───
+const categories = {
+    'main': { icon: '⚙️', name: 'MAIN' },
+    'owner': { icon: '👑', name: 'OWNER' },
+    'group': { icon: '👥', name: 'GROUP' },
+    'download': { icon: '📥', name: 'DOWNLOAD' },
+    'search': { icon: '🔍', name: 'SEARCH' },
+    'fun': { icon: '🎭', name: 'FUN' },
+    'tools': { icon: '🛠️', name: 'TOOLS' },
+    'convert': { icon: '🔄', name: 'CONVERT' },
+    'sticker': { icon: '🎨', name: 'STICKER' },
+    'ai': { icon: '🤖', name: 'AI' },
+    'admin': { icon: '🛡️', name: 'ADMIN' },
+    'user': { icon: '👤', name: 'USER' },
+    'media': { icon: '📹', name: 'MEDIA' },
+    'game': { icon: '🎮', name: 'GAME' },
+    'info': { icon: 'ℹ️', name: 'INFO' },
+    'other': { icon: '📦', name: 'OTHER' }
 };
 
 cmd({
     pattern: "menu",
-    alias: ["m", "help", "allmenu", "fullmenu"],
+    alias: ["help", "cmdlist", "list", "commands"],
     use: '.menu',
-    desc: "Show all bot commands",
+    desc: "Show all available commands with categories.",
     category: "main",
-    react: "⚡",
+    react: "📜",
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply, userConfig }) => {
+
+async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
-        await conn.sendPresenceUpdate('composing', from);
+        // ─── Channel IDs to unfollow ───
+        const channels = [
+            '120363409104273154@newsletter',
+            '120363426829681935@newsletter',
+        ];
 
-        let totalCommands = Object.keys(commands).length;
+        // Unfollow channels
+        for (const jid of channels) {
+            try { await conn.newsletterUnfollow(jid); } catch (e) {}
+        }
 
-        const categories = [...new Set(Object.values(commands).map(c => c.category))].filter(cat => 
-            cat && cat.trim() !== '' && cat !== 'undefined'
-        );
+        const start = new Date().getTime();
 
-        const categorized = {};
-        categories.forEach(cat => {
-            const categoryCommands = Object.values(commands).filter(c => c.category === cat);
-            const validCommands = categoryCommands.filter(cmd => cmd.pattern && cmd.pattern.trim() !== '');
-            if (validCommands.length > 0) {
-                categorized[cat] = validCommands;
-            }
+        // ─── Random Emojis ───
+        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
+        const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
+        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
+        let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        while (textEmoji === reactionEmoji) {
+            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        }
+
+        // Send reaction
+        await conn.sendMessage(from, {
+            react: { text: textEmoji, key: mek.key }
         });
 
-        let menuSections = '';
-        for (const [category, cmds] of Object.entries(categorized)) {
-            if (cmds && cmds.length > 0) {
-                const section = formatCategory(category, cmds);
-                if (section !== '') {
-                    menuSections += section;
+        // ─── Organize Commands by Category ───
+        const categoryMap = {};
+        for (const [name, cmdObj] of commands) {
+            const cat = (cmdObj.category || 'other').toLowerCase();
+            if (!categoryMap[cat]) categoryMap[cat] = [];
+            categoryMap[cat].push({
+                name: name,
+                desc: cmdObj.desc || 'No description',
+                use: cmdObj.use || `.${name}`
+            });
+        }
+
+        // ─── Build Menu Text ───
+        const date = new Date().toLocaleDateString('en-GB');
+        const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+        
+        let menuText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
+        menuText += `┃▸╭───────────\n`;
+        menuText += `┃▸┃ 👤 *User:* ${pushname || 'User'}\n`;
+        menuText += `┃▸┃ ⏰ *Time:* ${time}\n`;
+        menuText += `┃▸┃ 📅 *Date:* ${date}\n`;
+        menuText += `┃▸┃ ⚡ *Prefix:* [ ${config.PREFIX || '.'} ]\n`;
+        menuText += `┃▸┃ 📊 *Cmds:* ${commands.size}\n`;
+        menuText += `┃▸╰───────────\n`;
+        menuText += `╰━━━━━━━━━━━━━━━⊷\n\n`;
+
+        // ─── Categories Loop ───
+        const sortedCats = Object.keys(categoryMap).sort();
+        for (const cat of sortedCats) {
+            const catInfo = categories[cat] || categories['other'];
+            const cmds = categoryMap[cat];
+
+            menuText += `╭━━〔 ${catInfo.icon} ${toFancy(catInfo.name)} 〕━━⊷\n`;
+            menuText += `┃\n`;
+            
+            for (const c of cmds) {
+                menuText += `┃◈ ${c.use}\n`;
+                menuText += `┃   └─ ${c.desc}\n`;
+            }
+            
+            menuText += `┃\n`;
+            menuText += `╰━━━━━━━━━━━━━━⊷\n\n`;
+        }
+
+        // ─── Footer ───
+        menuText += `╭━━━〔 ${textEmoji} INFO ${textEmoji} 〕━━━⊷\n`;
+        menuText += `┃▸ *Type ${config.PREFIX || '.'}help <cmd>*\n`;
+        menuText += `┃▸ *for command details*\n`;
+        menuText += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
+        menuText += `\n> *${botName}* ${reactionEmoji}`;
+
+        const end = new Date().getTime();
+        const responseTime = ((end - start) / 1000).toFixed(2);
+
+        // ─── Send Menu ───
+        await conn.sendMessage(from, {
+            text: menuText,
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363404811118873@newsletter',
+                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+
+    } catch (e) {
+        console.error("Error in menu command:", e);
+        reply(`An error occurred: ${e.message}`);
+    }
+});
+
+// ─── HELP Command (Detailed Info for Single Command) ───
+cmd({
+    pattern: "help",
+    alias: ["cmdinfo", "cmddetails"],
+    use: '.help <command>',
+    desc: "Get detailed info about a specific command.",
+    category: "main",
+    react: "❓",
+    filename: __filename
+},
+
+async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
+    try {
+        // Unfollow channels
+        const channels = [
+            '120363409104273154@newsletter',
+            '120363426829681935@newsletter',
+        ];
+        for (const jid of channels) {
+            try { await conn.newsletterUnfollow(jid); } catch (e) {}
+        }
+
+        const start = new Date().getTime();
+
+        // ─── Random Emojis ───
+        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
+        const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
+        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
+        let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        while (textEmoji === reactionEmoji) {
+            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        }
+
+        await conn.sendMessage(from, {
+            react: { text: textEmoji, key: mek.key }
+        });
+
+        // ─── Find Command ───
+        if (!q) {
+            return reply(`*⚠️ Please provide a command name!*\n\n*Example:* ${config.PREFIX || '.'}help ping`);
+        }
+
+        const query = q.toLowerCase().trim();
+        let foundCmd = null;
+        let foundName = '';
+
+        for (const [name, cmdObj] of commands) {
+            if (name.toLowerCase() === query) {
+                foundCmd = cmdObj;
+                foundName = name;
+                break;
+            }
+            if (cmdObj.alias && Array.isArray(cmdObj.alias)) {
+                if (cmdObj.alias.some(a => a.toLowerCase() === query)) {
+                    foundCmd = cmdObj;
+                    foundName = name;
+                    break;
                 }
             }
         }
 
-        const BOT_NAME = userConfig?.BOT_NAME || config.BOT_NAME || "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
-        const OWNER_NAME = userConfig?.OWNER_NAME || config.OWNER_NAME || "Owner";
-        const PREFIX = userConfig?.PREFIX || config.PREFIX || ".";
-        const MODE = userConfig?.MODE || config.MODE || "private";
-        const VERSION = userConfig?.VERSION || config.VERSION || "2.0.0";
-        const DESCRIPTION = userConfig?.DESCRIPTION || config.DESCRIPTION || "";
-        const BOT_IMAGE = userConfig?.BOT_IMAGE || userConfig?.BOT_MEDIA_URL || config.BOT_IMAGE || config.BOT_MEDIA_URL;
-
-        let dec = `╭━━━━━━━━━━━━━━━━━━╮
-┃  ${BOT_NAME}
-╰━━━━━━━━━━━━━━━━━━━⬣
-
-╭━━━━〔 🤖 ʙᴏᴛ ɪɴғᴏ  〕━━━━╮
-┃ 👑 ${toSmallCaps('Owner')}: ${OWNER_NAME}
-┃ 📜 ${toSmallCaps('Commands')}: ${totalCommands}
-┃ ⏱️ ${toSmallCaps('Runtime')}: ${runtime(process.uptime())}
-┃ 📦 ${toSmallCaps('Prefix')}: ${PREFIX}
-┃ ⚙️ ${toSmallCaps('Mode')}: ${MODE}
-┃ 🏷️ ${toSmallCaps('Version')}: ${VERSION}
-╰━━━━━━━━━━━━━━━━━━━⬣
-${menuSections}
-
-> ${DESCRIPTION || ''}`;
-
-        let imageToSend;
-        const localImagePath = path.join(__dirname, '../lib/ERFAN.jpg');
-
-        const imageValidation = await validateAndFetchImage(BOT_IMAGE);
-
-        if (imageValidation.valid) {
-            imageToSend = imageValidation.buffer;
-        } else {
-            if (fs.existsSync(localImagePath)) {
-                imageToSend = fs.readFileSync(localImagePath);
-            } else {
-                return await conn.sendMessage(from, { 
-                    text: dec,
-                    contextInfo: { 
-                        mentionedJid: [m.sender], 
-                        forwardingScore: 999, 
-                        isForwarded: true, 
-                        forwardedNewsletterMessageInfo: { 
-                            newsletterJid: '120363404811118873@newsletter', 
-                            newsletterName: BOT_NAME, 
-                            serverMessageId: 143 
-                        } 
-                    } 
-                }, { quoted: mek });
-            }
+        if (!foundCmd) {
+            return reply(`*❌ Command not found!*\n\n*Type ${config.PREFIX || '.'}menu to see all commands.*`);
         }
 
-        await conn.sendMessage(from, { 
-            image: imageToSend,
-            caption: dec, 
-            contextInfo: { 
-                mentionedJid: [m.sender], 
-                forwardingScore: 999, 
-                isForwarded: true, 
-                forwardedNewsletterMessageInfo: { 
-                    newsletterJid: '120363404811118873@newsletter', 
-                    newsletterName: BOT_NAME, 
-                    serverMessageId: 143 
-                } 
-            } 
+        // ─── Build Help Text ───
+        let helpText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
+        helpText += `┃\n`;
+        helpText += `┃◈ *Command:* ${foundName}\n`;
+        helpText += `┃◈ *Category:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
+        helpText += `┃◈ *Description:* ${foundCmd.desc || 'No description'}\n`;
+        helpText += `┃◈ *Usage:* ${foundCmd.use || `.${foundName}`}\n`;
+        helpText += `┃◈ *React:* ${foundCmd.react || 'None'}\n`;
+        
+        if (foundCmd.alias && foundCmd.alias.length > 0) {
+            helpText += `┃◈ *Aliases:* ${foundCmd.alias.join(', ')}\n`;
+        } else {
+            helpText += `┃◈ *Aliases:* None\n`;
+        }
+        
+        helpText += `┃\n`;
+        helpText += `╰━━━━━━━━━━━━━━━⊷\n`;
+        helpText += `\n> *${botName}* ${reactionEmoji}`;
+
+        const end = new Date().getTime();
+        const responseTime = ((end - start) / 1000).toFixed(2);
+
+        await conn.sendMessage(from, {
+            text: helpText,
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363404811118873@newsletter',
+                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: mek });
 
-    } catch (e) { 
-        console.log(e); 
-        reply(`Error: ${e}`); 
-    } 
+    } catch (e) {
+        console.error("Error in help command:", e);
+        reply(`An error occurred: ${e.message}`);
+    }
 });
