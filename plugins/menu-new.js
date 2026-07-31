@@ -25,26 +25,6 @@ const toFancy = (text) => {
 
 const botName = "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
 
-// ─── Categories ───
-const categories = {
-    'main': { icon: '⚙️', name: 'MAIN' },
-    'owner': { icon: '👑', name: 'OWNER' },
-    'group': { icon: '👥', name: 'GROUP' },
-    'download': { icon: '📥', name: 'DOWNLOAD' },
-    'search': { icon: '🔍', name: 'SEARCH' },
-    'fun': { icon: '🎭', name: 'FUN' },
-    'tools': { icon: '🛠️', name: 'TOOLS' },
-    'convert': { icon: '🔄', name: 'CONVERT' },
-    'sticker': { icon: '🎨', name: 'STICKER' },
-    'ai': { icon: '🤖', name: 'AI' },
-    'admin': { icon: '🛡️', name: 'ADMIN' },
-    'user': { icon: '👤', name: 'USER' },
-    'media': { icon: '📹', name: 'MEDIA' },
-    'game': { icon: '🎮', name: 'GAME' },
-    'info': { icon: 'ℹ️', name: 'INFO' },
-    'other': { icon: '📦', name: 'OTHER' }
-};
-
 // ─── Safe Command Iterator ───
 function getAllCommands() {
     const list = [];
@@ -116,6 +96,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
         }
 
+        // ─── Organize by ACTUAL Category from Commands ───
         const categoryMap = {};
         for (const c of allCmds) {
             const cat = (c.category || 'other').toLowerCase();
@@ -137,15 +118,16 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `┃▸╰───────────\n`;
         caption += `╰━━━━━━━━━━━━━━━⊷\n\n`;
 
+        // ─── Categories Loop — REAL Names from Commands ───
         const sortedCats = Object.keys(categoryMap).sort();
         for (const cat of sortedCats) {
-            const catInfo = categories[cat] || categories['other'];
             const cmds = categoryMap[cat];
 
-            caption += `╭━━〔 ${catInfo.icon} ${toFancy(catInfo.name)} 〕━━⊷\n`;
+            // Fancy text category name (as-is from command.category)
+            caption += `╭━━〔 ${toFancy(cat)} 〕━━⊷\n`;
             caption += `┃\n`;
             
-            // SIRF COMMAND NAME — NO DESCRIPTION!
+            // Sirf command name
             for (const c of cmds) {
                 caption += `┃◈ *${c.name}*\n`;
             }
@@ -158,7 +140,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `┃▸ *Type ${prefix}help <cmd>*\n`;
         caption += `┃▸ *for command details*\n`;
         caption += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
-        caption += `\n> *${botName}* ${reactionEmoji}`;
+        caption += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
 
         const end = new Date().getTime();
 
