@@ -6,6 +6,9 @@ import { cmd, commands } from '../command.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ─── Menu Image URL ───
+const MENU_IMAGE_URL = 'https://files.catbox.moe/pb5yiz.jpg';
+
 // ─── Fancy Text Helper ───
 const toFancy = (text) => {
     const map = {
@@ -45,34 +48,24 @@ const categories = {
 // ─── Safe Command Iterator ───
 function getAllCommands() {
     const list = [];
-    
     try {
-        // Case 1: commands is a Map
         if (commands instanceof Map) {
-            commands.forEach((cmdObj, name) => {
-                list.push({ name, ...cmdObj });
-            });
+            commands.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
         }
-        // Case 2: commands is an Object {}
         else if (commands && typeof commands === 'object' && !Array.isArray(commands)) {
             for (const name in commands) {
-                if (commands.hasOwnProperty(name)) {
-                    list.push({ name, ...commands[name] });
-                }
+                if (commands.hasOwnProperty(name)) list.push({ name, ...commands[name] });
             }
         }
-        // Case 3: commands is an Array
         else if (Array.isArray(commands)) {
             commands.forEach((cmdObj, index) => {
                 list.push({ name: cmdObj.pattern || cmdObj.name || `cmd${index}`, ...cmdObj });
             });
         }
-        // Case 4: global.commands or cmd.commands
         else if (typeof global !== 'undefined' && global.commands) {
             const gCmds = global.commands;
-            if (gCmds instanceof Map) {
-                gCmds.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
-            } else if (typeof gCmds === 'object') {
+            if (gCmds instanceof Map) gCmds.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
+            else if (typeof gCmds === 'object') {
                 for (const name in gCmds) {
                     if (gCmds.hasOwnProperty(name)) list.push({ name, ...gCmds[name] });
                 }
@@ -81,7 +74,6 @@ function getAllCommands() {
     } catch (e) {
         console.error("Error reading commands:", e);
     }
-    
     return list;
 }
 
@@ -123,7 +115,6 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
         // ─── Get Commands Safely ───
         const allCmds = getAllCommands();
-        
         if (allCmds.length === 0) {
             return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
         }
@@ -135,54 +126,56 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             if (!categoryMap[cat]) categoryMap[cat] = [];
             categoryMap[cat].push({
                 name: c.name || c.pattern || 'unknown',
-                desc: c.desc || 'No description',
-                use: c.use || `.${c.name || c.pattern || 'cmd'}`
+                desc: c.desc || 'No description'
             });
         }
 
-        // ─── Build Menu ───
+        // ─── Build Menu Caption ───
         const date = new Date().toLocaleDateString('en-GB');
         const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
         const prefix = config.PREFIX || '.';
 
-        let menuText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
-        menuText += `┃▸╭───────────\n`;
-        menuText += `┃▸┃ 👤 *User:* ${pushname || 'User'}\n`;
-        menuText += `┃▸┃ ⏰ *Time:* ${time}\n`;
-        menuText += `┃▸┃ 📅 *Date:* ${date}\n`;
-        menuText += `┃▸┃ ⚡ *Prefix:* [ ${prefix} ]\n`;
-        menuText += `┃▸┃ 📊 *Cmds:* ${allCmds.length}\n`;
-        menuText += `┃▸╰───────────\n`;
-        menuText += `╰━━━━━━━━━━━━━━━⊷\n\n`;
+        let caption = `╭━━━〔 ${botName} 〕━━━⊷\n`;
+        caption += `┃▸╭───────────\n`;
+        caption += `┃▸┃ 👤 *User:* ${pushname || 'User'}\n`;
+        caption += `┃▸┃ ⏰ *Time:* ${time}\n`;
+        caption += `┃▸┃ 📅 *Date:* ${date}\n`;
+        caption += `┃▸┃ ⚡ *Prefix:* [ ${prefix} ]\n`;
+        caption += `┃▸┃ 📊 *Cmds:* ${allCmds.length}\n`;
+        caption += `┃▸╰───────────\n`;
+        caption += `╰━━━━━━━━━━━━━━━⊷\n\n`;
 
         const sortedCats = Object.keys(categoryMap).sort();
         for (const cat of sortedCats) {
             const catInfo = categories[cat] || categories['other'];
             const cmds = categoryMap[cat];
 
-            menuText += `╭━━〔 ${catInfo.icon} ${toFancy(catInfo.name)} 〕━━⊷\n`;
-            menuText += `┃\n`;
+            caption += `╭━━〔 ${catInfo.icon} ${toFancy(catInfo.name)} 〕━━⊷\n`;
+            caption += `┃\n`;
             
+            // Sirf command name aur description — USE nahi!
             for (const c of cmds) {
-                menuText += `┃◈ ${c.use}\n`;
-                menuText += `┃   └─ ${c.desc}\n`;
+                caption += `┃◈ *${c.name}*\n`;
+                caption += `┃   └─ ${c.desc}\n`;
             }
             
-            menuText += `┃\n`;
-            menuText += `╰━━━━━━━━━━━━━━⊷\n\n`;
+            caption += `┃\n`;
+            caption += `╰━━━━━━━━━━━━━━⊷\n\n`;
         }
 
-        menuText += `╭━━━〔 ${textEmoji} INFO ${textEmoji} 〕━━━⊷\n`;
-        menuText += `┃▸ *Type ${prefix}help <cmd>*\n`;
-        menuText += `┃▸ *for command details*\n`;
-        menuText += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
-        menuText += `\n> *${botName}* ${reactionEmoji}`;
+        caption += `╭━━━〔 ${textEmoji} INFO ${textEmoji} 〕━━━⊷\n`;
+        caption += `┃▸ *Type ${prefix}help <cmd>*\n`;
+        caption += `┃▸ *for command details*\n`;
+        caption += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
+        caption += `\n> *${botName}* ${reactionEmoji}`;
 
         const end = new Date().getTime();
         const responseTime = ((end - start) / 1000).toFixed(2);
 
+        // ─── Send Image with Caption ───
         await conn.sendMessage(from, {
-            text: menuText,
+            image: { url: MENU_IMAGE_URL },
+            caption: caption,
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
