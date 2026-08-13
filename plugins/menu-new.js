@@ -63,12 +63,20 @@ cmd({
     use: '.menu',
     desc: "Show all available commands with categories.",
     category: "main",
-    react: "👻",
+    react: "📜",
     filename: __filename
 },
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
+        const channels = [
+            '120363409104273154@newsletter',
+            '120363426829681935@newsletter',
+        ];
+        for (const jid of channels) {
+            try { await conn.newsletterUnfollow(jid); } catch (e) {}
+        }
+
         const start = new Date().getTime();
 
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
@@ -88,6 +96,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
         }
 
+        // ─── Organize by ACTUAL Category from Commands ───
         const categoryMap = {};
         for (const c of allCmds) {
             const cat = (c.category || 'other').toLowerCase();
@@ -109,14 +118,20 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `┃▸╰───────────\n`;
         caption += `╰━━━━━━━━━━━━━━━⊷\n\n`;
 
+        // ─── Categories Loop — REAL Names from Commands ───
         const sortedCats = Object.keys(categoryMap).sort();
         for (const cat of sortedCats) {
             const cmds = categoryMap[cat];
+
+            // Fancy text category name (as-is from command.category)
             caption += `╭━━〔 ${toFancy(cat)} 〕━━⊷\n`;
             caption += `┃\n`;
+            
+            // Sirf command name
             for (const c of cmds) {
                 caption += `┃◈ *${c.name}*\n`;
             }
+            
             caption += `┃\n`;
             caption += `╰━━━━━━━━━━━━━━⊷\n\n`;
         }
@@ -163,6 +178,14 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
+        const channels = [
+            '120363409104273154@newsletter',
+            '120363426829681935@newsletter',
+        ];
+        for (const jid of channels) {
+            try { await conn.newsletterUnfollow(jid); } catch (e) {}
+        }
+
         const start = new Date().getTime();
 
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
@@ -170,7 +193,7 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
         let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
         while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length]);
+            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
         }
 
         await conn.sendMessage(from, {
