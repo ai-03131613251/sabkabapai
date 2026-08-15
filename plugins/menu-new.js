@@ -59,7 +59,7 @@ function getAllCommands() {
 
 cmd({
     pattern: "menu",
-    alias: ["help", "cmdlist", "list", "commands"],
+    alias: ["help", "cmdlist", "m", "commands"],
     use: '.menu',
     desc: "Show all available commands with categories.",
     category: "main",
@@ -69,16 +69,9 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
-        const channels = [
-            '120363409104273154@newsletter',
-            '120363426829681935@newsletter',
-        ];
-        for (const jid of channels) {
-            try { await conn.newsletterUnfollow(jid); } catch (e) {}
-        }
-
         const start = new Date().getTime();
 
+        // ─── Random Emojis ───
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
         const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
@@ -93,57 +86,55 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
         const allCmds = getAllCommands();
         if (allCmds.length === 0) {
-            return reply(`*❌ No commands found!*\n\nCommands object type: ${typeof commands}`);
+            return reply(`*❌ No commands found!*`);
         }
 
-        // ─── Organize by ACTUAL Category from Commands ───
+        // ─── Organize by Category ───
         const categoryMap = {};
         for (const c of allCmds) {
             const cat = (c.category || 'other').toLowerCase();
             if (!categoryMap[cat]) categoryMap[cat] = [];
-            categoryMap[cat].push({ name: c.name || c.pattern || 'unknown' });
+            categoryMap[cat].push(c.name || c.pattern || 'unknown');
         }
 
         const date = new Date().toLocaleDateString('en-GB');
         const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
         const prefix = config.PREFIX || '.';
 
-        let caption = `╭━━━〔 ${botName} 〕━━━⊷\n`;
-        caption += `┃▸╭───────────\n`;
-        caption += `┃▸┃ 👤 *User:* ${pushname || 'User'}\n`;
-        caption += `┃▸┃ ⏰ *Time:* ${time}\n`;
-        caption += `┃▸┃ 📅 *Date:* ${date}\n`;
-        caption += `┃▸┃ ⚡ *Prefix:* [ ${prefix} ]\n`;
-        caption += `┃▸┃ 📊 *Cmds:* ${allCmds.length}\n`;
-        caption += `┃▸╰───────────\n`;
-        caption += `╰━━━━━━━━━━━━━━━⊷\n\n`;
+        // ─── VIP HEADER ───
+        let caption = `╭┈───〔 ${botName} 〕┈───⊷\n`;
+        caption += `┋⋄ ➠ 👤 *ᴜsᴇʀ:* ${pushname || 'User'}\n`;
+        caption += `┋⋄ ➠ ⏰ *ᴛɪᴍᴇ:* ${time}\n`;
+        caption += `┋⋄ ➠ 📅 *ᴅᴀᴛᴇ:* ${date}\n`;
+        caption += `┋⋄ ➠ ⚡ *ᴘʀᴇғɪx:* [ ${prefix} ]\n`;
+        caption += `┋⋄ ➠ 📊 *ᴄᴍᴅs:* ${allCmds.length}\n`;
+        caption += `╰───────────────────⊷\n\n`;
 
-        // ─── Categories Loop — REAL Names from Commands ───
+        // ─── VIP CATEGORIES ───
         const sortedCats = Object.keys(categoryMap).sort();
         for (const cat of sortedCats) {
             const cmds = categoryMap[cat];
+            const fancyCat = toFancy(cat.toUpperCase());
 
-            // Fancy text category name (as-is from command.category)
-            caption += `╭━━〔 ${toFancy(cat)} 〕━━⊷\n`;
-            caption += `┃\n`;
+            caption += `╭┈───〔 ${fancyCat} 〕┈───⊷\n`;
             
-            // Sirf command name
             for (const c of cmds) {
-                caption += `┃◈ *${c.name}*\n`;
+                caption += `┋⋄ ➠ *${c}*\n`;
             }
             
-            caption += `┃\n`;
-            caption += `╰━━━━━━━━━━━━━━⊷\n\n`;
+            caption += `╰───────────────────⊷\n\n`;
         }
 
-        caption += `╭━━━〔 ${textEmoji} INFO ${textEmoji} 〕━━━⊷\n`;
-        caption += `┃▸ *Type ${prefix}help <cmd>*\n`;
-        caption += `┃▸ *for command details*\n`;
-        caption += `╰━━━━━━━━━━━━━━━━━━⊷\n`;
+        // ─── VIP FOOTER ───
+        caption += `╭┈───〔 ${textEmoji} ɪɴғᴏ ${textEmoji} 〕┈───⊷\n`;
+        caption += `┋⋄ ➠ ᴛʏᴘᴇ ${prefix}help <cmd>\n`;
+        caption += `┋⋄ ➠ ғᴏʀ ᴄᴏᴍᴍᴀɴᴅ ᴅᴇᴛᴀɪʟs\n`;
+        caption += `╰───────────────────⊷\n`;
         caption += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
 
         const end = new Date().getTime();
 
+        // ─── Send Image + Caption ───
         await conn.sendMessage(from, {
             image: { url: MENU_IMAGE_URL },
             caption: caption,
@@ -161,7 +152,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
     } catch (e) {
         console.error("Error in menu command:", e);
-        reply(`*An error occurred in menu:*\n\`\`\`${e.message}\`\`\``);
+        reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
 
@@ -178,14 +169,6 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
-        const channels = [
-            '120363409104273154@newsletter',
-            '120363426829681935@newsletter',
-        ];
-        for (const jid of channels) {
-            try { await conn.newsletterUnfollow(jid); } catch (e) {}
-        }
-
         const start = new Date().getTime();
 
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
@@ -201,7 +184,7 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         });
 
         if (!q) {
-            return reply(`*⚠️ Please provide a command name!*\n\n*Example:* ${config.PREFIX || '.'}help ping`);
+            return reply(`*⚠️ ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴄᴏᴍᴍᴀɴᴅ ɴᴀᴍᴇ!*\n\n*ᴇxᴀᴍᴘʟᴇ:* ${config.PREFIX || '.'}help ping`);
         }
 
         const query = q.toLowerCase().trim();
@@ -225,23 +208,21 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         }
 
         if (!foundCmd) {
-            return reply(`*❌ Command not found!*\n\n*Type ${config.PREFIX || '.'}menu to see all commands.*`);
+            return reply(`*❌ ᴄᴏᴍᴍᴀɴᴅ ɴᴏᴛ ғᴏᴜɴᴅ!*\n\n*ᴛʏᴘᴇ ${config.PREFIX || '.'}menu ᴛᴏ sᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs.*`);
         }
 
-        let helpText = `╭━━━〔 ${botName} 〕━━━⊷\n`;
-        helpText += `┃\n`;
-        helpText += `┃◈ *Command:* ${foundName}\n`;
-        helpText += `┃◈ *Category:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
-        helpText += `┃◈ *Description:* ${foundCmd.desc || 'No description'}\n`;
-        helpText += `┃◈ *Usage:* ${foundCmd.use || `.${foundName}`}\n`;
-        helpText += `┃◈ *React:* ${foundCmd.react || 'None'}\n`;
+        let helpText = `╭┈───〔 ${botName} 〕┈───⊷\n`;
+        helpText += `┋⋄ ➠ *ᴄᴏᴍᴍᴀɴᴅ:* ${foundName}\n`;
+        helpText += `┋⋄ ➠ *ᴄᴀᴛᴇɢᴏʀʏ:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
+        helpText += `┋⋄ ➠ *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${foundCmd.desc || 'No description'}\n`;
+        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* ${foundCmd.use || `.${foundName}`}\n`;
+        helpText += `┋⋄ ➠ *ʀᴇᴀᴄᴛ:* ${foundCmd.react || 'None'}\n`;
         
         const aliases = foundCmd.alias || [];
-        helpText += `┃◈ *Aliases:* ${Array.isArray(aliases) && aliases.length > 0 ? aliases.join(', ') : 'None'}\n`;
+        helpText += `┋⋄ ➠ *ᴀʟɪᴀsᴇs:* ${Array.isArray(aliases) && aliases.length > 0 ? aliases.join(', ') : 'None'}\n`;
         
-        helpText += `┃\n`;
-        helpText += `╰━━━━━━━━━━━━━━━⊷\n`;
-        helpText += `\n> *${botName}* ${reactionEmoji}`;
+        helpText += `╰───────────────────⊷\n`;
+        helpText += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
 
         const end = new Date().getTime();
 
@@ -261,6 +242,7 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
 
     } catch (e) {
         console.error("Error in help command:", e);
-        reply(`*An error occurred in help:*\n\`\`\`${e.message}\`\`\``);
+        reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
+            
