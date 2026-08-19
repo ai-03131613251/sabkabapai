@@ -10,8 +10,8 @@ const CONFIG = {
     cooldown: 10000,           // 10 seconds cooldown per user
     timeout: 20000,            // API timeout
     maxFileSize: 100,          // Max file size in MB
-    brandName: "SAHIL-MD",
-    footer: "> Powered by SAHIL-MD",
+    brandName: "GHOST-MD",
+    footer: "> Powered by GHOST-MD",
     defaultQuality: "720p"     // Default video quality
 };
 
