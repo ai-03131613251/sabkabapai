@@ -135,7 +135,7 @@ cmd(
             statusMessage += `│ Online: ${onlineServers} | Offline: ${offlineServers}\n`;
             statusMessage += `│ Active: ${totalActive}/${totalLimit}\n`;
             statusMessage += `│\n`;
-            statusMessage += `│━━━━━━━━━━━━━━━━━━━━\n`;
+            statusMessage += `│━━━━━━━━━━━━━━━━━━━•\n`;
 
             serverStatus.forEach((s) => {
                 const statusIcon = s.status.split(' ')[0];
@@ -161,9 +161,9 @@ cmd(
         pattern: 'pair',
         alias: ['getpair', 'clonebot'],
         react: '✅',
-        desc: 'Get pairing code for erfan-MD bot',
+        desc: 'Get pairing code for 𝐆ʜᴏsᴛ-𝐌ᴅ bot',
         category: 'owner',
-        use: '.pair 923306137477',
+        use: '.pair 923174838990',
         filename: __filename
     },
     async (conn, mek, m, { q, senderNumber, reply }) => {
@@ -173,7 +173,7 @@ cmd(
                 : senderNumber.replace(/[^0-9]/g, '');
 
             if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
-                return await reply('❌ Please provide a valid phone number without +\nExample: .pair 923128520558');
+                return await reply('❌ Please provide a valid phone number without +\nExample: .pair 923131613251');
             }
 
             const randomResponse = await axios.get(`${API_BASE_URL}/random`, {
@@ -201,7 +201,7 @@ cmd(
             const pairingCode = response.data.code;
 
             await reply(
-                `🔐 *𝐒𝐀𝐇𝐈𝐋-𝐌𝐃💀🚩 PAIR CODE*\n\n` +
+                `🔐 *𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩 PAIR CODE*\n\n` +
                 `${pairingCode}\n\n` +
                 `Server: ${selectedServer}\n\n` +
                 `📱 *How to use:*\n` +
