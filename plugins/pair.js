@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 
 // Single API Base URL
-const API_BASE_URL = 'https://padffgh.vercel.app/api';
+const API_BASE_URL = 'https://ghost-mini-bot.vercel.app/api';
 
 // Status emoji function
 function getCountStatus(count) {
