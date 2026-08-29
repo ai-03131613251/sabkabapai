@@ -21,7 +21,7 @@ async (conn, mek, m, { from, q, reply, react }) => {
         if (!q) {
             return reply(
                 '*❌ Please provide a URL!*\n\n' +
-                '*Usage:* .ss erfanmd.vercel.app'
+                '*Usage:* .ss https://ghost-mini-bot.vercel.app/'
             );
         }
 
