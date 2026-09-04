@@ -12,65 +12,58 @@ cmd({
     pattern: "ping",
     alias: ["speed", "pong", "latency"],
     use: '.ping',
-    desc: "Check bot's response time with loading effect.",
+    desc: "Check bot's response time with progressive edit.",
     category: "main",
-    react: "🌡️",
+    react: "💎",
     filename: __filename
 },
 
 async (conn, mek, m, { from, quoted, sender, reply }) => {
     try {
-        // ─── Unfollow Channels ───
-        const channels = [
-            '120363409104273154@newsletter',
-            '120363426829681935@newsletter',
-        ];
-        for (const jid of channels) {
-            try { await conn.newsletterUnfollow(jid); } catch (e) {}
-        }
-
         const start = new Date().getTime();
 
-        // ─── Random Emojis ───
-        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
-        const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
-        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
-        let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        }
-
-        // Send reaction
-        await conn.sendMessage(from, {
-            react: { text: textEmoji, key: mek.key }
-        });
-
-        // ─── Loading Message ───
-        const loadingMsg = await conn.sendMessage(from, {
-            text: `╭━━━━━━━━━━━━━━━━━━╮\n┃  ${botName}\n╰━━━━━━━━━━━━━━━━━━━⬣\n\n⏳ *ᴘɪɴɢɪɴɢ...* ${textEmoji}\n\n> *ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...*`
+        // 1st Message - Loading
+        let msg = await conn.sendMessage(from, {
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ 𝗣𝗶𝗻𝗴𝗶𝗻𝗴...
+╰─────────────────────⊷`
         }, { quoted: mek });
 
-        // Loading delay effect
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // 2nd Edit - Name
+        await conn.sendMessage(from, {
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+╰─────────────────────⊷`,
+            edit: msg.key
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // 3rd Edit - Name + Link
+        await conn.sendMessage(from, {
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+┋⋄ ➠ https://ghost-mini-bot.vercel.app/
+╰─────────────────────⊷`,
+            edit: msg.key
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const end = new Date().getTime();
-        const responseTime = (end - start) / 1000;
+        const responseTime = ((end - start) / 1000).toFixed(2);
 
-        // ─── Speed Result ───
-        let speedText = `╭━━━━━━━━━━━━━━━━━╮\n`;
-        speedText += `┃  ${botName}\n`;
-        speedText += `╰━━━━━━━━━━━━━━━━━━━•\n\n`;
-        speedText += `╭━━━〔 ⚡ sᴘᴇᴇᴅ ⚡ 〕━━━╮\n`;
-        speedText += `┃\n`;
-        speedText += `┃  🔥 sᴘᴇᴇᴅ: ${responseTime.toFixed(2)}ms\n`;
-        speedText += `┃  ${reactionEmoji}\n`;
-        speedText += `┃\n`;
-        speedText += `╰━━━━━━━━━━━━━━━━━━━⬣\n`;
-        speedText += `\n> *${botName}* ${reactionEmoji}`;
-
-        // Send result (quoted to loading message)
+        // Final Edit - Full Result
         await conn.sendMessage(from, {
-            text: speedText,
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+┋⋄ ➠ https://ghost-mini-bot.vercel.app/
+┋⋄ ➠ 𝗦𝗽𝗲𝗲𝗱 : ${responseTime} ᴍs
+┋⋄ ➠ 𝗦𝘁𝗮𝘁𝘂𝘀 : Online
+╰─────────────────────⊷`,
+            edit: msg.key,
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -81,7 +74,7 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
                     serverMessageId: 143
                 }
             }
-        }, { quoted: loadingMsg });
+        });
 
     } catch (e) {
         console.error("Error in ping command:", e);
