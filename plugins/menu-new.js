@@ -9,9 +9,6 @@ const __dirname = path.dirname(__filename);
 // ─── Menu Image URL ───
 const MENU_IMAGE_URL = 'https://files.catbox.moe/pb5yiz.jpg';
 
-// ─── Song URL (Yahan apna song ka link daalo) ───
-const MENU_SONG_URL = 'https://files.catbox.moe/your-song.mp3';   // ← Apna song link yahan paste karo
-
 // ─── Fancy Text Helper ───
 const toFancy = (text) => {
     const map = {
@@ -72,16 +69,9 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
-        const start = new Date().getTime();
-
         // ─── Random Emojis ───
-        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
-        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
         let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        }
 
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
@@ -151,23 +141,6 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             }
         }, { quoted: mek });
 
-        // ─── Send Song as Voice Note ───
-        await conn.sendMessage(from, {
-            audio: { url: MENU_SONG_URL },
-            mimetype: 'audio/mp4',
-            ptt: true, // Voice note style
-            contextInfo: {
-                mentionedJid: [sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363404811118873@newsletter',
-                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
-                    serverMessageId: 143
-                }
-            }
-        }, { quoted: mek });
-
     } catch (e) {
         console.error("Error in menu command:", e);
         reply(`*Error:* \`\`\`${e.message}\`\`\``);
@@ -187,15 +160,8 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
-        const start = new Date().getTime();
-
-        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
-        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
         let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        }
 
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
