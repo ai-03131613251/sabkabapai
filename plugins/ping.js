@@ -34,7 +34,7 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
         // 2nd Edit - Name
         await conn.sendMessage(from, {
             text: `╭┈───〔 ${botName} 〕┈───⊷
-┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ
 ╰─────────────────────⊷`,
             edit: msg.key
         });
@@ -44,7 +44,7 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
         // 3rd Edit - Name + Link
         await conn.sendMessage(from, {
             text: `╭┈───〔 ${botName} 〕┈───⊷
-┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ
 ┋⋄ ➠ https://ghost-mini-bot.vercel.app/
 ╰─────────────────────⊷`,
             edit: msg.key
@@ -58,7 +58,7 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
         // Final Edit - Full Result
         await conn.sendMessage(from, {
             text: `╭┈───〔 ${botName} 〕┈───⊷
-┋⋄ ➠ مــٰٰ۬͜ـٰ۬ـٖـ٘افـٰ۬ـٖیـٰ۬ـٖــؔــا عـــٰٰ۬͜ـٰ۬ـٖـ٘دیـٰ۬ـٖـٰ۬ـٖــؔــل
+┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ
 ┋⋄ ➠ https://ghost-mini-bot.vercel.app/
 ┋⋄ ➠ 𝗦𝗽𝗲𝗲𝗱 : ${responseTime} ᴍs
 ┋⋄ ➠ 𝗦𝘁𝗮𝘁𝘂𝘀 : Online
