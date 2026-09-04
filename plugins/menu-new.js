@@ -7,7 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ─── Menu Image URL ───
-const MENU_IMAGE_URL = 'https://i.ibb.co/mCBLwD7t/MAFIA-ADEEL.jpg';
+const MENU_IMAGE_URL = 'https://files.catbox.moe/pb5yiz.jpg';
+
+// ─── Song URL (Yahan apna song ka link daalo) ───
+const MENU_SONG_URL = 'https://files.catbox.moe/your-song.mp3';   // ← Apna song link yahan paste karo
 
 // ─── Fancy Text Helper ───
 const toFancy = (text) => {
@@ -132,12 +135,27 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `╰───────────────────⊷\n`;
         caption += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
 
-        const end = new Date().getTime();
-
         // ─── Send Image + Caption ───
         await conn.sendMessage(from, {
             image: { url: MENU_IMAGE_URL },
             caption: caption,
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363404811118873@newsletter',
+                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+
+        // ─── Send Song as Voice Note ───
+        await conn.sendMessage(from, {
+            audio: { url: MENU_SONG_URL },
+            mimetype: 'audio/mp4',
+            ptt: true, // Voice note style
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -215,7 +233,7 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         helpText += `┋⋄ ➠ *ᴄᴏᴍᴍᴀɴᴅ:* ${foundName}\n`;
         helpText += `┋⋄ ➠ *ᴄᴀᴛᴇɢᴏʀʏ:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
         helpText += `┋⋄ ➠ *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${foundCmd.desc || 'No description'}\n`;
-        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* ${foundCmd.use || `.${foundName}`}\n`;
+        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* \( {foundCmd.use || `. \){foundName}`}\n`;
         helpText += `┋⋄ ➠ *ʀᴇᴀᴄᴛ:* ${foundCmd.react || 'None'}\n`;
         
         const aliases = foundCmd.alias || [];
@@ -223,8 +241,6 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         
         helpText += `╰───────────────────⊷\n`;
         helpText += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
-
-        const end = new Date().getTime();
 
         await conn.sendMessage(from, {
             text: helpText,
@@ -245,4 +261,3 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
-            
