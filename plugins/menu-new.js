@@ -69,9 +69,16 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
+        const start = new Date().getTime();
+
         // ─── Random Emojis ───
+        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
+        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
         let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        while (textEmoji === reactionEmoji) {
+            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        }
 
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
@@ -125,6 +132,8 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         caption += `╰───────────────────⊷\n`;
         caption += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
 
+        const end = new Date().getTime();
+
         // ─── Send Image + Caption ───
         await conn.sendMessage(from, {
             image: { url: MENU_IMAGE_URL },
@@ -160,8 +169,15 @@ cmd({
 
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
+        const start = new Date().getTime();
+
+        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
         const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
+        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
         let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        while (textEmoji === reactionEmoji) {
+            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
+        }
 
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
@@ -199,7 +215,7 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         helpText += `┋⋄ ➠ *ᴄᴏᴍᴍᴀɴᴅ:* ${foundName}\n`;
         helpText += `┋⋄ ➠ *ᴄᴀᴛᴇɢᴏʀʏ:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
         helpText += `┋⋄ ➠ *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${foundCmd.desc || 'No description'}\n`;
-        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* \( {foundCmd.use || `. \){foundName}`}\n`;
+        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* ${foundCmd.use || `.${foundName}`}\n`;
         helpText += `┋⋄ ➠ *ʀᴇᴀᴄᴛ:* ${foundCmd.react || 'None'}\n`;
         
         const aliases = foundCmd.alias || [];
@@ -207,6 +223,8 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         
         helpText += `╰───────────────────⊷\n`;
         helpText += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
+
+        const end = new Date().getTime();
 
         await conn.sendMessage(from, {
             text: helpText,
@@ -227,3 +245,4 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
         reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
+            
