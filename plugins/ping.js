@@ -24,18 +24,18 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
 
         // 1st Message - Ghost-MD
         let msg = await conn.sendMessage(from, {
-            text: `╭┈───〔 ${botName} 〕┈───⊷
+            text: `╭┈─〔 ${botName} 〕┈─⊷
 ┋⋄ ➠ 𝐏ɪɴɢ...
-╰─────────────────────⊷`
+╰──────────────────⊷`
         }, { quoted: mek });
 
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // 2nd Edit - Mafia Adeel
         await conn.sendMessage(from, {
-            text: `╭┈───〔 ${botName} 〕┈───⊷
+            text: `╭┈─〔 ${botName} 〕┈─⊷
 ┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ🚩👑
-╰─────────────────────⊷`,
+╰──────────────────⊷`,
             edit: msg.key
         });
 
@@ -46,11 +46,11 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
 
         // Final Edit - Full Speed Result
         await conn.sendMessage(from, {
-            text: `╭┈───〔 ${botName} 〕┈───⊷
+            text: `╭┈──〔 ${botName} 〕┈──⊷
 ┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ🚩👑
 ┋⋄ ➠ Տᑭᗴᗴᗪ : ${responseTime} ᴍs
 ┋⋄ ➠ ՏTᗩTᑌՏ : Online
-╰─────────────────────⊷`,
+╰───────────────────⊷`,
             edit: msg.key,
             contextInfo: {
                 mentionedJid: [sender],
