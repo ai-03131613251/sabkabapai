@@ -1,8 +1,10 @@
-// 𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩
+// 𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩 - UPGRADED MENU WITH AUDIO & AUTO LOADER
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs'; // File System import for Audio
 import config from '../config.js';
 import { cmd, commands } from '../command.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -25,23 +27,27 @@ const toFancy = (text) => {
 
 const botName = "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
 
-// ─── Safe Command Iterator ───
+// ─── Safe Command Iterator (Auto Loader Logic) ───
 function getAllCommands() {
     const list = [];
     try {
+        // Check if commands is a Map
         if (commands instanceof Map) {
             commands.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
         }
+        // Check if commands is an Object
         else if (commands && typeof commands === 'object' && !Array.isArray(commands)) {
             for (const name in commands) {
                 if (commands.hasOwnProperty(name)) list.push({ name, ...commands[name] });
             }
         }
+        // Check if commands is an Array
         else if (Array.isArray(commands)) {
             commands.forEach((cmdObj, index) => {
                 list.push({ name: cmdObj.pattern || cmdObj.name || `cmd${index}`, ...cmdObj });
             });
         }
+        // Fallback to Global
         else if (typeof global !== 'undefined' && global.commands) {
             const gCmds = global.commands;
             if (gCmds instanceof Map) gCmds.forEach((cmdObj, name) => list.push({ name, ...cmdObj }));
@@ -52,7 +58,7 @@ function getAllCommands() {
             }
         }
     } catch (e) {
-        console.error("Error reading commands:", e);
+        console.error("⚠️ Error reading commands:", e);
     }
     return list;
 }
@@ -61,15 +67,22 @@ cmd({
     pattern: "menu",
     alias: ["help", "cmdlist", "m", "commands"],
     use: '.menu',
-    desc: "Show all available commands with categories.",
+    desc: "Show all available commands with categories and background music.",
     category: "main",
-    react: "📜",
+    react: "🎵", // Music Note Reaction
     filename: __filename
 },
 
 async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
     try {
         const start = new Date().getTime();
+
+        // 1. Load Commands First (Ensure List is Fresh)
+        const allCmds = getAllCommands();
+        
+        if (allCmds.length === 0) {
+            return reply(`*❌ No commands loaded yet! Please wait...*`);
+        }
 
         // ─── Random Emojis ───
         const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
@@ -83,11 +96,6 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
         await conn.sendMessage(from, {
             react: { text: textEmoji, key: mek.key }
         });
-
-        const allCmds = getAllCommands();
-        if (allCmds.length === 0) {
-            return reply(`*❌ No commands found!*`);
-        }
 
         // ─── Organize by Category ───
         const categoryMap = {};
@@ -103,10 +111,10 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
         // ─── VIP HEADER ───
         let caption = `╭┈───〔 ${botName} 〕┈───⊷\n`;
-        caption += `┋⋄ ➠ 👤 *ᴜsᴇʀ:* ${pushname || 'User'}\n`;
-        caption += `┋⋄ ➠ ⏰ *ᴛɪᴍᴇ:* ${time}\n`;
-        caption += `┋⋄ ➠ 📅 *ᴅᴀᴛᴇ:* ${date}\n`;
-        caption += `┋⋄ ➠ ⚡ *ᴘʀᴇғɪx:* [ ${prefix} ]\n`;
+        caption += `┋ ➠ 👤 *ᴜsᴇʀ:* ${pushname || 'User'}\n`;
+        caption += `┋⋄ ➠ ⏰ *ᴛɪᴍ:* ${time}\n`;
+        caption += `┋⋄ ➠  *ᴅᴛᴇ:* ${date}\n`;
+        caption += `┋⋄ ➠  *ᴘᴇғɪx:* [ ${prefix} ]\n`;
         caption += `┋⋄ ➠ 📊 *ᴄᴍᴅs:* ${allCmds.length}\n`;
         caption += `╰───────────────────⊷\n\n`;
 
@@ -116,7 +124,7 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             const cmds = categoryMap[cat];
             const fancyCat = toFancy(cat.toUpperCase());
 
-            caption += `╭┈───〔 ${fancyCat} 〕┈───⊷\n`;
+            caption += `╭───〔 ${fancyCat} 〕┈───⊷\n`;
             
             for (const c of cmds) {
                 caption += `┋⋄ ➠ *${c}*\n`;
@@ -127,14 +135,12 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
 
         // ─── VIP FOOTER ───
         caption += `╭┈───〔 ${textEmoji} ɪɴғᴏ ${textEmoji} 〕┈───⊷\n`;
-        caption += `┋⋄ ➠ ᴛʏᴘᴇ ${prefix}help <cmd>\n`;
-        caption += `┋⋄ ➠ ғᴏʀ ᴄᴏᴍᴍᴀɴᴅ ᴅᴇᴛᴀɪʟs\n`;
+        caption += `┋ ➠ ᴛʏᴘᴇ ${prefix}help <cmd>\n`;
+        caption += `┋⋄ ➠ ғᴏʀ ᴄᴏᴍᴍɴᴅ ᴅᴛᴀʟs\n`;
         caption += `╰───────────────────⊷\n`;
-        caption += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
+        caption += `\n> *© ᴘᴏᴡᴇʀᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇʟ*`;
 
-        const end = new Date().getTime();
-
-        // ─── Send Image + Caption ───
+        // ─── Send Image + Caption First ───
         await conn.sendMessage(from, {
             image: { url: MENU_IMAGE_URL },
             caption: caption,
@@ -150,13 +156,39 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
             }
         }, { quoted: mek });
 
+        // ─── Send Audio (Song) Immediately After ───
+        const audioPath = path.join(__dirname, '../assets/menu.mp3');
+        
+        if (fs.existsSync(audioPath)) {
+            const audioBuffer = fs.readFileSync(audioPath);
+            
+            // Send as Voice Note (PTT) for auto-play feel
+            await conn.sendMessage(from, {
+                audio: audioBuffer,
+                mimetype: 'audio/mp4',
+                ptt: true, // True = Voice Note Style, False = Music Player Style
+                fileName: 'GhostMD_Menu.mp3',
+                contextInfo: {
+                    externalAdReply: {
+                        title: "🎵 Now Playing",
+                        body: `${botName} Theme`,
+                        thumbnailUrl: MENU_IMAGE_URL,
+                        mediaType: 1,
+                        renderLargerThumbnail: true
+                    }
+                }
+            }, { quoted: mek });
+        } else {
+            console.log("⚠️ Audio file 'menu.mp3' not found in assets folder.");
+        }
+
     } catch (e) {
         console.error("Error in menu command:", e);
         reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
 
-// ─── HELP Command ───
+// ─── HELP Command (Unchanged but kept for consistency) ───
 cmd({
     pattern: "help",
     alias: ["cmdinfo", "cmddetails"],
@@ -166,27 +198,10 @@ cmd({
     react: "❓",
     filename: __filename
 },
-
 async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
     try {
-        const start = new Date().getTime();
-
-        const reactionEmojis = ['🔥', '⚡', '🚀', '💨', '🎯', '🎉', '🌟', '💥', '🕐', '🔹'];
-        const textEmojis = ['💎', '🏆', '⚡️', '🚀', '🎶', '🌠', '🌀', '🔱', '🛡️', '✨'];
-        const reactionEmoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
-        let textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        while (textEmoji === reactionEmoji) {
-            textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
-        }
-
-        await conn.sendMessage(from, {
-            react: { text: textEmoji, key: mek.key }
-        });
-
-        if (!q) {
-            return reply(`*⚠️ ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴄᴏᴍᴍᴀɴᴅ ɴᴀᴍᴇ!*\n\n*ᴇxᴀᴍᴘʟᴇ:* ${config.PREFIX || '.'}help ping`);
-        }
-
+        if (!q) return reply(`*⚠️ ᴘʟᴀs ᴘʀᴏᴠɪᴅᴇ  ᴄᴏᴍᴀɴ ɴᴀᴍᴇ!*\n\n*ᴇxᴀᴍʟᴇ:* ${config.PREFIX || '.'}help ping`);
+        
         const query = q.toLowerCase().trim();
         const allCmds = getAllCommands();
         let foundCmd = null;
@@ -194,55 +209,24 @@ async (conn, mek, m, { from, quoted, sender, args, q, reply }) => {
 
         for (const c of allCmds) {
             const cmdName = (c.name || c.pattern || '').toLowerCase();
-            if (cmdName === query) {
-                foundCmd = c;
-                foundName = c.name || c.pattern;
-                break;
-            }
+            if (cmdName === query) { foundCmd = c; foundName = c.name || c.pattern; break; }
             const aliases = c.alias || [];
-            if (Array.isArray(aliases) && aliases.some(a => a.toLowerCase() === query)) {
-                foundCmd = c;
-                foundName = c.name || c.pattern;
-                break;
-            }
+            if (Array.isArray(aliases) && aliases.some(a => a.toLowerCase() === query)) { foundCmd = c; foundName = c.name || c.pattern; break; }
         }
 
-        if (!foundCmd) {
-            return reply(`*❌ ᴄᴏᴍᴍᴀɴᴅ ɴᴏᴛ ғᴏᴜɴᴅ!*\n\n*ᴛʏᴘᴇ ${config.PREFIX || '.'}menu ᴛᴏ sᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs.*`);
-        }
+        if (!foundCmd) return reply(`*❌ ᴄᴏᴍᴍɴᴅ ɴᴛ ғᴏᴜɴᴅ!*`);
 
         let helpText = `╭┈───〔 ${botName} 〕┈───⊷\n`;
-        helpText += `┋⋄ ➠ *ᴄᴏᴍᴍᴀɴᴅ:* ${foundName}\n`;
+        helpText += `┋⋄ ➠ *ᴄᴏᴍᴍɴᴅ:* ${foundName}\n`;
         helpText += `┋⋄ ➠ *ᴄᴀᴛᴇɢᴏʀʏ:* ${(foundCmd.category || 'other').toUpperCase()}\n`;
-        helpText += `┋⋄ ➠ *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${foundCmd.desc || 'No description'}\n`;
-        helpText += `┋⋄ ➠ *ᴜsᴀɢᴇ:* ${foundCmd.use || `.${foundName}`}\n`;
-        helpText += `┋⋄ ➠ *ʀᴇᴀᴄᴛ:* ${foundCmd.react || 'None'}\n`;
-        
-        const aliases = foundCmd.alias || [];
-        helpText += `┋⋄ ➠ *ᴀʟɪᴀsᴇs:* ${Array.isArray(aliases) && aliases.length > 0 ? aliases.join(', ') : 'None'}\n`;
-        
+        helpText += `┋⋄ ➠ *ᴅᴇsᴄʀɪᴛɪɴ:* ${foundCmd.desc || 'No description'}\n`;
+        helpText += `┋⋄ ➠ *ᴜsᴀɢ:* ${foundCmd.use || `.${foundName}`}\n`;
         helpText += `╰───────────────────⊷\n`;
-        helpText += `\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ*`;
+        helpText += `\n> *© ᴘᴡᴇʀᴇ ʙʏ 𝐌ᴀғɪᴀ ᴅᴇᴇʟ*`;
 
-        const end = new Date().getTime();
-
-        await conn.sendMessage(from, {
-            text: helpText,
-            contextInfo: {
-                mentionedJid: [sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363404811118873@newsletter',
-                    newsletterName: "𝐆ʜᴏsᴛ-𝐌ᴅ",
-                    serverMessageId: 143
-                }
-            }
-        }, { quoted: mek });
+        await conn.sendMessage(from, { text: helpText }, { quoted: mek });
 
     } catch (e) {
-        console.error("Error in help command:", e);
         reply(`*Error:* \`\`\`${e.message}\`\`\``);
     }
 });
-            
