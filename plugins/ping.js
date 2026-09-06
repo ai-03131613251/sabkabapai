@@ -7,49 +7,51 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const botName = "𝐆ʜᴏsᴛ-𝐌ᴅ💀🚩";
-const ownerName = "𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ🚩👑";
-
-// ─── Video URL ───
-const ALIVE_VIDEO = 'https://files.catbox.moe/your-video.mp4';  // ← Apni video ka link yahan daalo
 
 cmd({
-    pattern: "alive",
-    alias: ["online", "bot", "status"],
-    use: '.alive',
-    desc: "Check if bot is alive.",
+    pattern: "ping",
+    alias: ["speed", "pong", "latency"],
+    use: '.ping',
+    desc: "Check bot's response time with progressive edit.",
     category: "main",
-    react: "💗",
+    react: "💎",
     filename: __filename
 },
 
-async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
+async (conn, mek, m, { from, quoted, sender, reply }) => {
     try {
-        const caption = `╭┈───〔 ${botName} 〕┈───⊷
-┋⋄ ➠ 𝗢𝘄𝗻𝗲𝗿 : ${ownerName}
-┋⋄ ➠ 𝗨𝘀𝗲𝗿 : ${pushname || 'User'}
-╰─────────────────────⊷
+        const start = new Date().getTime();
 
-╔══╗....<3
-╚╗╔╝..('\\../')
-╔╝╚╗..( •.• )
-╚══╝..(,,)(,,)
-╔╗╔═╦╦╦═╗ ╔╗╔╗
-║╚╣║║║║╩╣ ║╚╝║
-╚═╩═╩═╩═╝ ╚══╝
+        // 1st Message - Ghost-MD
+        let msg = await conn.sendMessage(from, {
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ 𝐏ɪɴɢ...
+╰─────────────────────⊷`
+        }, { quoted: mek });
 
-╭┈───〔 💌 ᴘᴏᴇᴛʀʏ 💌 〕┈───⊷
-┋⋄ ➠ 🫶____//"
-┋⋄ ➠ *_❤️‍🩹ہـــؔـر کســـؔـی کے بـــؔـس کی بـــؔـات نہیـــؔـں ہوتـــؔـی🫠_*
-┋⋄ ➠ *_کســـؔـی ایـــؔـک کے لیـــؔـے وفـــؔـادار ہـــؔـونا🌸💖_*
-┋⋄ ➠ *${ownerName}*
-╰─────────────────────⊷
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ${ownerName}*`;
-
+        // 2nd Edit - Mafia Adeel
         await conn.sendMessage(from, {
-            video: { url: ALIVE_VIDEO },
-            caption: caption,
-            gifPlayback: true,
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ🚩👑
+╰─────────────────────⊷`,
+            edit: msg.key
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const end = new Date().getTime();
+        const responseTime = ((end - start) / 1000).toFixed(2);
+
+        // Final Edit - Full Speed Result
+        await conn.sendMessage(from, {
+            text: `╭┈───〔 ${botName} 〕┈───⊷
+┋⋄ ➠ 𝐌ᴀғɪᴀ 𝐀ᴅᴇᴇʟ🚩👑
+┋⋄ ➠ Տᑭᗴᗴᗪ : ${responseTime} ᴍs
+┋⋄ ➠ ՏTᗩTᑌՏ : Online
+╰─────────────────────⊷`,
+            edit: msg.key,
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -60,10 +62,10 @@ async (conn, mek, m, { from, quoted, sender, pushname, reply }) => {
                     serverMessageId: 143
                 }
             }
-        }, { quoted: mek });
+        });
 
     } catch (e) {
-        console.error("Error in alive command:", e);
-        reply(`*Error:* \`\`\`${e.message}\`\`\``);
+        console.error("Error in ping command:", e);
+        reply(`*An error occurred:* \`\`\`${e.message}\`\`\``);
     }
 });
