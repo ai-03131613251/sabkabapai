@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ─── Menu Image URL ───
-const MENU_IMAGE_URL = 'https://files.catbox.moe/pb5yiz.jpg';
+const MENU_IMAGE_URL = 'https://files.catbox.moe/w8y8br.png';
 
 // ─── Fancy Text Helper ───
 const toFancy = (text) => {
